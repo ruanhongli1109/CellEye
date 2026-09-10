@@ -1,0 +1,10 @@
+# CellEye 运行依赖
+numpy>=1.24
+opencv-python>=4.8
+PyYAML>=6.0
+matplotlib>=3.7
+
+# ---- 真机（树莓派）额外需要，桌面演示不需要 ----
+# picamera2>=0.3      # 树莓派摄像头
+# smbus2>=0.4         # I2C 传感器（SHT31 / SCD40 / BMP280）
+# onnxruntime>=1.16   # 第二阶段接入语义分割模型时使用

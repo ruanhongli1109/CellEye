@@ -1,0 +1,10 @@
+# 统一换行符：仓库内一律 LF，检出时按平台自动转换。
+# 不加这个，Windows 上的 CRLF 会在 diff 里制造大量假改动。
+* text=auto eol=lf
+
+# 二进制资源不做换行转换，否则图片会被改坏
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.onnx binary
+*.tflite binary

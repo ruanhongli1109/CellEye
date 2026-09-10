@@ -1,0 +1,75 @@
+# CellEye 主配置
+# 说明：凡带 mock: true 的模块都会走「无硬件」分支，可在普通笔记本上跑通全链路。
+# 硬件到货后把 mock 改成 false 即可，不需要改动任何代码。
+
+project:
+  name: CellEye
+  operator: 赵泽林
+  stage: "第一阶段 M1-M3"
+  # 本阶段模型生物：酿酒酵母（BSL-1，安全、便宜、快、桌面可做）
+  organism: "Saccharomyces cerevisiae"
+
+capture:
+  interval_minutes: 20
+  output_dir: data/raw/frames
+  resolution: [1080, 1920]        # (高, 宽)
+  mock: true                      # true = 生成合成图像
+  # 合成图像模式下，每帧按下面的趋势缓慢漂移，用来模拟真实培养过程
+  mock_scenario: normal           # normal | contamination | ph_drift | growth
+  jpeg_quality: 92
+
+sensors:
+  enabled: true
+  mock: true                      # true = 返回带漂移的仿真读数
+  i2c_bus: 1
+  addresses:
+    sht31: 0x44                   # 温湿度
+    scd40: 0x62                   # CO2（NDIR）
+    bmp280: 0x76                  # 气压/温度
+  baseline:
+    temperature_c: 30.0
+    humidity_pct: 80.0
+    co2_ppm: 400.0
+
+analyze:
+  # ---- 酚红比色法测 pH ----
+  ph:
+    # 画面内标准白卡的 [x, y, w, h]，用于同框白平衡校正。
+    #
+    # 两种写法（四个值**全部 ≤ 1.0** 视为相对比例，否则视为像素）：
+    #   相对： [0.844, 0.037, 0.063, 0.111]   ← 换分辨率不用重标，推荐
+    #   像素： [1620, 40, 120, 120]           ← 真机上对着截图量的坐标
+    #
+    # 真机首次上机时，必须先截图量出白卡的实际位置再填 ——
+    # 现在是估的。区域越界会直接报错，不会静默用未校正的图。
+    reference_patch: [0.844, 0.037, 0.063, 0.111]
+    # 培养基取样区域（相对画面的比例），避开边缘与反光
+    medium_roi: [0.30, 0.30, 0.40, 0.40]     # [x, y, w, h] 比例
+    calibration_file: data/processed/ph_calibration.json
+    # 无标定文件时用于演示的兜底色表（RGB），仅供 mock 模式使用
+    demo_palette:
+      "6.4": [235, 190, 70]
+      "6.8": [228, 150, 75]
+      "7.0": [220, 120, 85]
+      "7.2": [215, 100, 95]
+      "7.4": [205, 90, 110]
+      "7.8": [185, 80, 145]
+
+  # ---- 浑浊度（浊度升高 = 污染早期信号）----
+  turbidity:
+    baseline_frames: 5             # 用最初 N 帧作为"清澈"基线
+    warn_ratio: 1.30               # 浑浊度达到基线的 1.30 倍 → 提醒
+    alert_ratio: 1.60              # 达到 1.60 倍 → 高等级告警
+
+  # ---- 汇合度 ----
+  confluence:
+    method: threshold              # threshold | model
+    model_path: null               # method=model 时指向 onnx/tflite 权重
+    warn_confluence: 0.85          # 超过此值提示该传代了
+
+alert:
+  enabled: false                   # 先关掉，避免调试时误发消息
+  channel: wecom                   # wecom | dingtalk | email
+  webhook: ""                      # 企业微信/钉钉 机器人 webhook
+  email_to: ""
+  cooldown_minutes: 60             # 同类告警的最短发送间隔，防止轰炸

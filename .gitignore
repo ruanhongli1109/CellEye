@@ -1,0 +1,28 @@
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# ---- 数据（体积大且含实验隐私，不入库）----
+# 目录结构保留，内容忽略
+data/raw/**
+data/processed/**
+data/labels/**
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/labels/.gitkeep
+
+# ---- 本地配置 ----
+# 推送 webhook 里含密钥，绝不入库
+src/config.local.yaml
+.env
+
+# ---- 编辑器 / 系统 ----
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
