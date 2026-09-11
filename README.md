@@ -10,6 +10,9 @@
 [![python](https://img.shields.io/badge/python-3.10%2B-blue)](#快速开始)
 [![license](https://img.shields.io/badge/license-MIT-lightgrey)](LICENSE)
 
+**仓库：<https://github.com/ruanhongli1109/CellEye>** ｜ 无需硬件即可跑通：
+`pip install -r requirements.txt && python scripts/demo_mock.py`
+
 ---
 
 ## 这是什么
@@ -218,8 +221,12 @@ pH 分级准确率 ≥ 90%；连续无人运行 ≥ 7 天；单套原型物料�
 
 ## 开源
 
+**仓库地址：<https://github.com/ruanhongli1109/CellEye>**
+
 代码、电路图、3D 打印文件与标注数据集全部开源。
 如果你也在做类似的事，欢迎开 issue 交流——尤其是踩过的坑。
+
+过程记录在 [docs/log/](docs/log/) 里按周更新，包括失败的尝试。
 
 ## 致谢
 
