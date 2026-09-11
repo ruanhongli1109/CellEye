@@ -52,8 +52,10 @@ def run_scenario(name: str):
 
 
 def main() -> int:
-    fig, axes = plt.subplots(3, 1, figsize=(11, 9), dpi=150, sharex=True)
-    colors = ["#1F2A44", "#2E7D7B", "#C0392B", "#C9A227"]
+    fig, axes = plt.subplots(3, 1, figsize=(10.6, 8.6), dpi=200, sharex=True)
+    # 藏蓝 + 香槟金为主，红只留给"真出事"的那条曲线
+    NAVY, TEAL, RED, GOLD = "#1F2A44", "#26655F", "#B23A2E", "#B8891F"
+    colors = [NAVY, TEAL, RED, GOLD]
 
     print("=" * 78)
     print("CellEye 端到端演示（合成图像，无硬件）")
@@ -70,9 +72,12 @@ def main() -> int:
         conf = [r.result.confluence for r in records]
         n_alert = sum(1 for r in records if r.result.level != "ok")
 
-        axes[0].plot(hours, conf, color=color, lw=1.8, label=label)
-        axes[1].plot(hours, turb, color=color, lw=1.8, label=label)
-        axes[2].plot(hours, ph, color=color, lw=1.8, label=label)
+        axes[0].plot(hours, conf, color=color, lw=2.0, label=label,
+                     solid_capstyle="round")
+        axes[1].plot(hours, turb, color=color, lw=2.0, label=label,
+                     solid_capstyle="round")
+        axes[2].plot(hours, ph, color=color, lw=2.0, label=label,
+                     solid_capstyle="round")
 
         last = lambda v: "  --  " if v[-1] is None else f"{v[-1]:.2f}"  # noqa: E731
         print(f"{label:<20}{last(ph):>8}{last(turb):>12}"
@@ -80,30 +85,39 @@ def main() -> int:
 
     print("-" * 78)
 
-    axes[0].set_ylabel("汇合度")
+    axes[0].set_ylabel("汇合度", fontsize=10.5, color=NAVY)
     axes[0].set_ylim(0, 1.05)
-    axes[0].axhline(0.85, ls="--", lw=1, color="#999", zorder=0)
-    axes[0].text(0.2, 0.87, "传代参考线 85%", fontsize=8, color="#666")
+    axes[0].axhline(0.85, ls=(0, (5, 3)), lw=1.1, color="#B9C1CE", zorder=0)
+    axes[0].text(5.9, 0.87, "传代参考线 85%", fontsize=8.6, color="#8B95A5",
+                 ha="right", va="top")
 
-    axes[1].set_ylabel("浑浊度（相对基线倍数）")
-    axes[1].axhline(1.30, ls="--", lw=1, color="#E08A2E", zorder=0)
-    axes[1].axhline(1.60, ls="--", lw=1, color="#C0392B", zorder=0)
-    axes[1].text(0.2, 1.62, "高等级告警 1.60×", fontsize=8, color="#C0392B")
-    axes[1].text(0.2, 1.32, "提醒 1.30×", fontsize=8, color="#E08A2E")
+    axes[1].set_ylabel("浑浊度（相对基线倍数）", fontsize=10.5, color=NAVY)
+    axes[1].set_ylim(0.7, 2.35)
+    axes[1].axhline(1.30, ls=(0, (5, 3)), lw=1.1, color="#D8B25E", zorder=0)
+    axes[1].axhline(1.60, ls=(0, (5, 3)), lw=1.1, color="#C97A6E", zorder=0)
+    axes[1].text(0.12, 1.63, "高等级告警 1.60×", fontsize=8.6, color="#B23A2E")
+    axes[1].text(0.12, 1.33, "提醒 1.30×", fontsize=8.6, color="#A8842E")
 
-    axes[2].set_ylabel("pH")
-    axes[2].axhspan(6.90, 7.50, color="#2E7D7B", alpha=0.08, zorder=0)
-    axes[2].text(0.2, 7.44, "正常区间 6.90–7.50", fontsize=8, color="#2E7D7B")
-    axes[2].set_xlabel("培养时间（小时）")
+    axes[2].set_ylabel("pH", fontsize=10.5, color=NAVY)
+    axes[2].axhspan(6.90, 7.50, color=TEAL, alpha=0.07, zorder=0)
+    axes[2].text(0.12, 7.42, "正常区间 6.90–7.50", fontsize=8.6, color=TEAL)
+    axes[2].set_xlabel("培养时间（小时）", fontsize=10.5, color=NAVY)
 
     for ax in axes:
-        ax.grid(alpha=0.25, lw=0.7)
+        ax.grid(axis="y", color="#EDF1F6", lw=0.9, zorder=0)
         ax.spines[["top", "right"]].set_visible(False)
+        ax.spines[["left", "bottom"]].set_color("#C7CFDB")
+        ax.tick_params(colors="#5A6472", labelsize=9.5, length=0)
 
-    axes[0].legend(loc="upper left", ncol=4, fontsize=9, frameon=False)
-    fig.suptitle("CellEye 合成情景演示：四个指标链路 24 小时走势",
-                 fontsize=13, fontweight="bold", color="#1F2A44", y=0.995)
-    fig.tight_layout(rect=(0, 0, 1, 0.98))
+    axes[0].legend(loc="upper left", ncol=4, fontsize=9.6, frameon=False,
+                   handlelength=1.6, columnspacing=1.6)
+    fig.suptitle("四种合成情景 · 24 小时指标走势", fontsize=15,
+                 fontweight="bold", color=NAVY, x=0.055, ha="left", y=0.985)
+    fig.text(0.055, 0.945,
+             "合成图像演示，不含真实实验数据。注意中图：只有「污染发生」的浑浊度冲到基线 2 倍，"
+             "其余三种始终平在 1.0 附近 —— 这正是告警要抓的东西。",
+             fontsize=9.2, color="#707C90", ha="left", va="top")
+    fig.tight_layout(rect=(0, 0, 1, 0.925))
 
     out = ROOT / "docs" / "figures"
     out.mkdir(parents=True, exist_ok=True)
